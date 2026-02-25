@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="AI Health Information Assistant — Get general health guidance, self-care tips, and specialist referral suggestions. Powered by AI with voice and video call support.">
+  <title>MediBot AI — Health Information Assistant</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩺</text></svg>">
+</head>
+
+<body>
+
+  <div id="app">
+    <!-- Sidebar Overlay (Mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">🩺</div>
+        <div>
+          <div class="sidebar-title">MediBot AI</div>
+          <div class="sidebar-subtitle">Health Assistant</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-view="welcome" id="navWelcome">
+          <span class="nav-icon">🏠</span> Home
+        </button>
+        <button class="nav-btn" data-view="chat" id="navChat">
+          <span class="nav-icon">💬</span> Chat
+        </button>
+        <button class="nav-btn" data-view="video" id="navVideo">
+          <span class="nav-icon">📹</span> Video Call
+        </button>
+        <button class="nav-btn" data-view="tracker" id="navTracker">
+          <span class="nav-icon">📋</span> Symptom Tracker
+        </button>
+      </nav>
+
+      <!-- Health Tips -->
+      <div class="sidebar-tips">
+        <div class="tips-title">💡 Daily Health Tips</div>
+        <div id="healthTips">
+          <div class="tip-card">
+            <div class="tip-emoji">💧</div>
+            <div class="tip-text">Drink at least 8 glasses of water daily to stay hydrated.</div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-emoji">🏃</div>
+            <div class="tip-text">30 minutes of moderate exercise daily can boost your immune system.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOS Button -->
+      <div class="sos-section">
+        <button class="sos-btn" id="sosBtn">
+          🚨 Emergency SOS
+        </button>
+      </div>
+
+      <!-- Settings -->
+      <div class="sidebar-footer">
+        <button class="settings-btn" id="settingsBtn">
+          ⚙️ Settings
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="main-header">
+        <div class="header-left">
+          <button class="menu-toggle" id="menuToggle">☰</button>
+          <div class="header-mode">
+            <div class="mode-indicator"></div>
+            <span class="mode-label" id="modeLabel">Online</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="header-btn" id="voiceToggle" title="Toggle Voice Output">🔊</button>
+          <button class="header-btn" id="themeToggle" title="Toggle Theme">🌙</button>
+          <button class="header-btn" id="clearChat" title="Clear Chat">🗑️</button>
+        </div>
+      </header>
+
+      <!-- Views Container -->
+      <div class="views-container">
+
+        <!-- Welcome View -->
+        <div class="view welcome-view active" id="welcomeView">
+          <div class="welcome-icon">🩺</div>
+          <h1 class="welcome-title">Welcome to MediBot AI</h1>
+          <p class="welcome-desc">
+            Your AI-powered health information assistant. Get general health guidance,
+            self-care tips, and learn which medical specialist you may consider consulting —
+            all through text, voice, or video.
+          </p>
+          <div class="feature-cards">
+            <div class="feature-card" data-action="chat">
+              <div class="card-icon">💬</div>
+              <div class="card-title">AI Chat</div>
+              <div class="card-desc">Ask health questions via text with intelligent responses</div>
+            </div>
+            <div class="feature-card" data-action="voice">
+              <div class="card-icon">🎙️</div>
+              <div class="card-title">Voice Mode</div>
+              <div class="card-desc">Speak naturally — Gemini-like voice interaction</div>
+            </div>
+            <div class="feature-card" data-action="video">
+              <div class="card-icon">📹</div>
+              <div class="card-title">Video Call</div>
+              <div class="card-desc">Show your concern via camera for AI visual analysis</div>
+            </div>
+          </div>
+          <button class="start-btn" id="startChatBtn">Start Conversation →</button>
+        </div>
+
+        <!-- Chat View -->
+        <div class="view chat-view" id="chatView">
+          <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be inserted here -->
+          </div>
+          <div class="chat-input-area">
+            <div class="input-wrapper">
+              <textarea class="chat-input" id="chatInput"
+                placeholder="Describe your symptoms or ask a health question..." rows="1"></textarea>
+              <button class="input-btn mic-btn" id="micBtn" title="Voice Input">🎙️</button>
+              <button class="input-btn send-btn" id="sendBtn" title="Send Message" disabled>➤</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Call View -->
+        <div class="view video-view" id="videoView">
+          <div class="video-container">
+            <!-- User Camera Panel -->
+            <div class="video-panel">
+              <div class="video-panel-header">
+                <div class="video-panel-title">
+                  <span class="live-dot"></span> Your Camera
+                </div>
+              </div>
+              <div class="video-feed" id="userVideoFeed">
+                <div class="video-placeholder" id="videoPlaceholder">
+                  <div class="placeholder-icon">📷</div>
+                  <p>Click "Start Camera" to begin</p>
+                </div>
+                <video id="userVideo" autoplay playsinline muted style="display:none;"></video>
+              </div>
+            </div>
+            <!-- AI Response Panel -->
+            <div class="video-panel ai-response-panel">
+              <div class="video-panel-header">
+                <div class="video-panel-title">🩺 AI Health Analysis</div>
+              </div>
+              <div class="ai-video-response" id="aiVideoResponse">
+                <p class="waiting-text">Start your camera and click "Analyze" for AI to assess what it sees.</p>
+              </div>
+            </div>
+          </div>
+          <div class="video-controls">
+            <button class="video-ctrl-btn" id="startCameraBtn" title="Start Camera">📷</button>
+            <button class="video-ctrl-btn" id="switchCameraBtn" title="Switch Camera (Front/Back)">🔄</button>
+            <button class="video-ctrl-btn" id="videoMicBtn" title="Toggle Microphone">🎙️</button>
+            <button class="video-ctrl-btn analyze-btn" id="analyzeBtn" title="AI Analyze">🔍 Analyze</button>
+            <button class="video-ctrl-btn" id="autoAnalyzeBtn" title="Auto-Analyze (Speaks symptoms)">🔁 Auto</button>
+            <button class="video-ctrl-btn end-call" id="endCallBtn" title="End Call">📵</button>
+          </div>
+        </div>
+
+        <!-- Symptom Tracker View -->
+        <div class="view tracker-view" id="trackerView">
+          <div class="tracker-header">
+            <h2 class="tracker-title">📋 Symptom Tracker</h2>
+            <p class="tracker-desc">Log your symptoms to track patterns over time. This information can be helpful when
+              consulting a healthcare professional.</p>
+          </div>
+          <div class="tracker-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Symptom</label>
+                <input class="form-input" id="symptomName" type="text" placeholder="e.g., Headache, Cough">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Severity</label>
+                <select class="form-select" id="symptomSeverity">
+                  <option value="mild">Mild</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="severe">Severe</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Duration</label>
+                <input class="form-input" id="symptomDuration" type="text" placeholder="e.g., 2 days, 1 week">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Body Area</label>
+                <select class="form-select" id="symptomArea">
+                  <option value="head">Head</option>
+                  <option value="chest">Chest</option>
+                  <option value="abdomen">Abdomen</option>
+                  <option value="back">Back</option>
+                  <option value="limbs">Arms/Legs</option>
+                  <option value="skin">Skin</option>
+                  <option value="throat">Throat/Neck</option>
+                  <option value="general">General/Whole Body</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label class="form-label">Additional Notes</label>
+                <textarea class="form-textarea" id="symptomNotes"
+                  placeholder="Describe any additional details..."></textarea>
+              </div>
+            </div>
+            <button class="tracker-submit" id="logSymptom">Log Symptom</button>
+          </div>
+          <div class="symptom-history">
+            <div class="history-title">📊 Symptom History</div>
+            <div id="symptomList">
+              <!-- Symptom entries will be inserted here -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">⚙️ Settings</h3>
+        <button class="modal-close" id="closeSettings">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-group">
+          <div class="settings-group-title">AI Configuration (Llama via Groq)</div>
+          <div class="settings-item">
+            <label class="settings-label">Groq API Key (Free)</label>
+            <input class="settings-input" id="apiKeyInput" type="password"
+              placeholder="Enter your Groq API key (gsk_...)">
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="settings-group-title">Voice Settings</div>
+          <div class="settings-toggle">
+            <span class="settings-label">Voice Output</span>
+            <div class="toggle-switch active" id="voiceOutputToggle"></div>
+          </div>
+          <div class="settings-item">
+            <label class="settings-label">Voice Speed</label>
+            <select class="form-select" id="voiceSpeed">
+              <option value="0.8">Slow</option>
+              <option value="1" selected>Normal</option>
+              <option value="1.2">Fast</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="settings-group-title">General</div>
+          <div class="settings-toggle">
+            <span class="settings-label">Auto-scroll Chat</span>
+            <div class="toggle-switch active" id="autoScrollToggle"></div>
+          </div>
+          <div class="settings-toggle">
+            <span class="settings-label">Sound Effects</span>
+            <div class="toggle-switch active" id="soundToggle"></div>
+          </div>
+        </div>
+        <button class="settings-save" id="saveSettings">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOS Modal -->
+  <div class="modal-overlay sos-modal" id="sosModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">🚨 Emergency Help</h3>
+        <button class="modal-close" id="closeSos">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="sos-content">
+          <div class="sos-icon">🏥</div>
+          <p class="sos-message">
+            If you are experiencing a <strong>medical emergency</strong>, please call your local emergency services
+            immediately.
+            Do not rely on this chatbot for emergency medical assistance.
+          </p>
+          <div class="sos-numbers">
+            <div class="sos-number">🇺🇸 USA: <strong>911</strong></div>
+            <div class="sos-number">🇮🇳 India: <strong>112</strong></div>
+            <div class="sos-number">🇬🇧 UK: <strong>999</strong></div>
+            <div class="sos-number">🇪🇺 EU: <strong>112</strong></div>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted);">
+            This chatbot provides general health information only and is NOT a substitute for emergency medical care.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
