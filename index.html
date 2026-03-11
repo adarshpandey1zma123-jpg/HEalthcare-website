@@ -4,6 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SECURITY: Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self' https:; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+  <!-- SECURITY: Additional Security Headers -->
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="geolocation=()">
+
   <meta name="description"
     content="AI Health Information Assistant — Get general health guidance, self-care tips, and specialist referral suggestions. Powered by AI with voice and video call support.">
   <title>MediBot AI — Health Information Assistant</title>
@@ -86,8 +97,30 @@
         </div>
         <div class="header-right">
           <button class="header-btn" id="voiceToggle" title="Toggle Voice Output">🔊</button>
-          <button class="header-btn" id="themeToggle" title="Toggle Theme">🌙</button>
+          <div class="theme-picker-wrapper">
+            <button class="header-btn" id="themePaletteBtn" title="Change Theme">🎨</button>
+            <div class="theme-picker" id="themePicker">
+              <div class="theme-picker-title">Choose Theme</div>
+              <button class="theme-option active" data-theme="emerald">
+                <span class="theme-dot" style="background: linear-gradient(135deg, #00e4b8, #4f8ff7);"></span>
+                <span>Emerald Night</span>
+              </button>
+              <button class="theme-option" data-theme="ocean">
+                <span class="theme-dot" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);"></span>
+                <span>Ocean Depths</span>
+              </button>
+              <button class="theme-option" data-theme="galaxy">
+                <span class="theme-dot" style="background: linear-gradient(135deg, #a78bfa, #ec4899);"></span>
+                <span>Purple Galaxy</span>
+              </button>
+              <button class="theme-option" data-theme="sunset">
+                <span class="theme-dot" style="background: linear-gradient(135deg, #f59e0b, #ef4444);"></span>
+                <span>Sunset Fire</span>
+              </button>
+            </div>
+          </div>
           <button class="header-btn" id="clearChat" title="Clear Chat">🗑️</button>
+          <button class="header-btn" id="settingsBtnHeader" title="Settings">⚙️</button>
         </div>
       </header>
 
@@ -129,11 +162,18 @@
             <!-- Messages will be inserted here -->
           </div>
           <div class="chat-input-area">
-            <div class="input-wrapper">
-              <textarea class="chat-input" id="chatInput"
-                placeholder="Describe your symptoms or ask a health question..." rows="1"></textarea>
-              <button class="input-btn mic-btn" id="micBtn" title="Voice Input">🎙️</button>
-              <button class="input-btn send-btn" id="sendBtn" title="Send Message" disabled>➤</button>
+            <div class="chat-input-footer">
+              <div class="input-wrapper">
+                <textarea class="chat-input" id="chatInput"
+                  placeholder="Describe your symptoms or ask a health question..." rows="1"></textarea>
+                <button class="input-btn mic-btn" id="micBtn" title="Voice Input">🎙️</button>
+                <button class="input-btn send-btn" id="sendBtn" title="Send Message" disabled>➤</button>
+              </div>
+              <div class="chat-footer-info">
+                <span class="powered-by">Powered by AI</span>
+                <span class="footer-dot">•</span>
+                <span class="disclaimer-mini">Not medical advice</span>
+              </div>
             </div>
           </div>
         </div>
@@ -172,6 +212,8 @@
             <button class="video-ctrl-btn" id="videoMicBtn" title="Toggle Microphone">🎙️</button>
             <button class="video-ctrl-btn analyze-btn" id="analyzeBtn" title="AI Analyze">🔍 Analyze</button>
             <button class="video-ctrl-btn" id="autoAnalyzeBtn" title="Auto-Analyze (Speaks symptoms)">🔁 Auto</button>
+            <button class="video-ctrl-btn lang-toggle" id="langToggleBtn" title="Toggle Hinglish/English">🇮🇳
+              Hinglish</button>
             <button class="video-ctrl-btn end-call" id="endCallBtn" title="End Call">📵</button>
           </div>
         </div>
@@ -247,11 +289,18 @@
       </div>
       <div class="modal-body">
         <div class="settings-group">
-          <div class="settings-group-title">AI Configuration (Llama via Groq)</div>
-          <div class="settings-item">
-            <label class="settings-label">Groq API Key (Free)</label>
-            <input class="settings-input" id="apiKeyInput" type="password"
-              placeholder="Enter your Groq API key (gsk_...)">
+          <div class="settings-group-title">About</div>
+          <div style="text-align: center; padding: 16px 0;">
+            <div style="font-size: 42px; margin-bottom: 8px;">🩺</div>
+            <div
+              style="font-family: var(--font-display); font-size: 20px; font-weight: 700; background: var(--gradient-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+              MediBot AI</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Version 2.0 • Powered by Omniscient
+              Intelligence</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px; line-height: 1.6;">
+              AI-powered health information assistant with text, voice &amp; video consultation. Built using advanced AI
+              models for fast, intelligent responses.
+            </div>
           </div>
         </div>
         <div class="settings-group">
@@ -279,8 +328,33 @@
             <span class="settings-label">Sound Effects</span>
             <div class="toggle-switch active" id="soundToggle"></div>
           </div>
+          <div class="settings-toggle">
+            <span class="settings-label">Notifications</span>
+            <div class="toggle-switch active" id="notificationToggle"></div>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="settings-group-title">Preferences</div>
+          <div class="settings-item">
+            <label class="settings-label">Default Language</label>
+            <select class="form-select" id="defaultLang">
+              <option value="en" selected>English</option>
+              <option value="hi">Hinglish (Hindi + English)</option>
+            </select>
+          </div>
+          <div class="settings-item">
+            <label class="settings-label">Chat Font Size</label>
+            <select class="form-select" id="chatFontSize">
+              <option value="small">Small</option>
+              <option value="medium" selected>Medium</option>
+              <option value="large">Large</option>
+            </select>
+          </div>
         </div>
         <button class="settings-save" id="saveSettings">Save Settings</button>
+        <div style="text-align: center; margin-top: 12px; font-size: 10px; color: var(--text-muted);">
+          Made with ❤️ by Omniscient Intelligence • © 2026
+        </div>
       </div>
     </div>
   </div>
